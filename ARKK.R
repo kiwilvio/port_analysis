@@ -19,7 +19,7 @@ MF_tickers <- MF_holdings %>%
   str_squish() %>% 
   str_replace_all(",", "") %>% 
   str_extract("\\b[A-Z]+\\b(?!.*\\b[A-Z]+\\b)")
-MF_tickers
+MF_tickers <- MF_tickers[-c(1, 27)]
 
 getSymbols(MF_tickers, src="yahoo", from = d, to = Sys.Date())
 
@@ -33,11 +33,9 @@ for (i in MF_tickers[2:length(MF_tickers)]){
   }, error = function(e){c("ERROR :", conditionMessage(e), "\n")})
 }
 
+closing <- as_tibble(date=index(closing), as.tibble(closing))
 # View NA (Unity IPOd recently)
-colSums(is.na(data))
-
-closing <- tibble(date=index(closing), as.tibble(closing))
-
+colSums(is.na(closing))
 
 for (i in MF_tickers){
   tryCatch({
@@ -52,7 +50,7 @@ for (i in MF_tickers){
 closing_prices <- closing[1:46]
 returns <- closing[c(1, 47:91)]
 
-x <- abs((na.fill0(slice(closing_prices[-c(1)], 171), 0) - na.fill0(slice(closing_prices[-c(1)], 1), 0))) / na.fill0(slice(closing_prices[-c(1)], 1), 0)
+x <- abs((na.fill0(slice(closing_prices[-c(1)], 253), 0) - na.fill0(slice(closing_prices[-c(1)], 1), 0))) / na.fill0(slice(closing_prices[-c(1)], 1), 0)
 
 x <- x %>%
   tibble::rownames_to_column() %>%  
@@ -61,3 +59,4 @@ x <- x %>%
 
 x <- x %>% arrange(desc(`1`))
 x
+View(x)
